@@ -1,0 +1,16 @@
+These two operations are useful for expressing more-complex queries. For instance, you can combine flatMap and collect to produce a Map representing the number of occurrences of each character that appears in a stream of words, as shown in Listing 2. Don’t worry if this code seems overwhelming at first. The purpose of this article is to explain and explore these two operations in more detail. 
+
+import static java.util.function.Function.identity;
+import static java.util.stream.Collectors.*;
+
+Stream<String> words = Stream.of("Java", "Magazine", "is", 
+     "the", "best");
+
+Map<String, Long> letterToCount =
+           words.map(w -> w.split(""))
+                                   .flatMap(Arrays::stream)
+                                   .collect(groupingBy(identity(), counting()));
+
+Listing 2
+
+The code in Listing 2 will produce the output shown in Listing 3. Awesome, isn’t it? Let’s get started and explore how the flatMap and collect operations work.
