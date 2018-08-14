@@ -1,6 +1,7 @@
 import org.apache.commons.cli.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class CommandLineHandler {
 
@@ -14,7 +15,7 @@ public class CommandLineHandler {
         output = OUTPUT_DFLT;
     }
 
-    public void parseArgs(String[] args) throws Exception {
+    public void parseArgs(String[] args) throws ParseException, FileNotFoundException {
         Option optInput = new Option("i", "input", true, "Fill to provide input file (\"input.txt\" by default)");
         optInput.setArgs(1);
         Option optOutput = new Option("o", "output", true, "Fill to provide output file (\"output.txt\" by default)");
@@ -35,7 +36,7 @@ public class CommandLineHandler {
             input = arguments[0];
             File file = new File(input);
             if (!file.exists()) {
-                throw new Exception("The file " + input + " doesn't exist. Try again.");
+                throw new FileNotFoundException("The file " + input + " doesn't exist. Try again.");
             }
         }
         if (commandLine.hasOption("o")) {
@@ -44,11 +45,11 @@ public class CommandLineHandler {
         }
     }
 
-    public String inputPath() {
+    public String getInput() {
         return input;
     }
 
-    public String outputPath() {
+    public String getOutput() {
         return output;
     }
 }

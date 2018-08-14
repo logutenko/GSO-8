@@ -1,12 +1,13 @@
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.ParseException;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 
 public class Main {
@@ -20,25 +21,25 @@ public class Main {
         Path file;
         try {
             handler.parseArgs(args);
-            file = Paths.get(handler.inputPath());
-            try (BufferedReader reader = Files.newBufferedReader(file, charset)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    counter.process(line);
-                }
-                counter.sort();
+            file = Paths.get(handler.getInput());
+            try (Stream<String> stream = Files.lines(file)) {
+                stream.map(x -> x.toLowerCase().replaceAll("\\s+", ""))
+                        .filter(x -> !x.isEmpty())
+                        .forEach(counter::process);
             }
-            file = Paths.get(handler.outputPath());
+            file = Paths.get(handler.getOutput());
             try (BufferedWriter writer = Files.newBufferedWriter(file, charset)) {
-                String result = counter.statistics();
-                writer.write(result, 0, result.length());
+                for (String line : counter.collectStatistics()) {
+                    writer.write(line + "\n");
+                }
             }
         } catch (ParseException x) {
-            System.err.format("ParseException: %s%n", x);
+            System.err.println("A ParseException was caught: " + x.getMessage());
+        } catch (FileNotFoundException x) {
+            System.err.println(x.getMessage());
         } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
-        } catch (Exception x) {
-            System.err.format("Exception: %s%n", x);
+            System.err.println("General I/O exception: " + x.getMessage());
+            System.err.println("Exception belongs to " + x.getClass());
         }
     }
 }
