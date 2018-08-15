@@ -1,4 +1,3 @@
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -8,31 +7,26 @@ public class SymbolCounter {
     private Map<Character, Integer> symbols = new HashMap<>();
 
     public void process(String text) {
-
-        text.chars()
+        text.toLowerCase().chars()
                 .mapToObj(ch -> (char) ch)
-                .forEach(s -> symbols.merge(s, 1, (a, b) -> a + b));
+                .filter(ch -> ch != ' ')
+                .forEach(ch -> symbols.compute(ch, (key, value) -> value == null ? 1 : value + 1));
     }
 
-    public List<String> collectStatistics() {
+    public List<String> collectStatistics(int bound) {
         int total = symbols.values().stream().mapToInt(Number::intValue).sum();
         if (total == 0) {
-            return Stream.of("No data")
-                    .collect(Collectors.toList());
-        } else {
-            DecimalFormat df = new DecimalFormat("#0.0");
-            return symbols.entrySet().stream()
-                    .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
-                    .map((x) -> {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append(x.getKey()).append(" (").append(df.format(x.getValue() * 100.0 / total)).append(" %):  ");
-                        int rate = (int) Math.ceil(x.getValue() * 100.0 / total);
-                        for (int i = 0; i < rate; i++) {
-                            sb.append("#");
-                        }
-                        return sb.toString();
-                    })
-                    .collect(Collectors.toList());
+            return Arrays.asList("No data");
         }
+        String formatter = "%c (%.1f %%): %s";
+        return symbols.entrySet().stream()
+                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
+                .map(x -> {
+                    int rate = (int) Math.ceil(x.getValue() * 100.0 / total);
+                    String bar = Stream.generate(() -> "#").limit(rate).reduce("", String::concat);
+                    return String.format(formatter, x.getKey(), x.getValue() * 100.0 / total, bar);
+                })
+                .limit(bound != 0 ? bound : symbols.entrySet().size())
+                .collect(Collectors.toList());
     }
 }

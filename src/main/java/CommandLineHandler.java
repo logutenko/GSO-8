@@ -9,6 +9,7 @@ public class CommandLineHandler {
     public static String OUTPUT_DFLT = "output.txt";
     private String input;
     private String output;
+    private int bound;
 
     public CommandLineHandler() {
         input = INPUT_DFLT;
@@ -16,14 +17,17 @@ public class CommandLineHandler {
     }
 
     public void parseArgs(String[] args) throws ParseException, FileNotFoundException {
-        Option optInput = new Option("i", "input", true, "Fill to provide input file (\"input.txt\" by default)");
+        Option optInput = new Option("i", "input", true, "To provide input file (\"input.txt\" by default)");
         optInput.setArgs(1);
-        Option optOutput = new Option("o", "output", true, "Fill to provide output file (\"output.txt\" by default)");
+        Option optOutput = new Option("o", "output", true, "To provide output file (\"output.txt\" by default)");
         optOutput.setArgs(1);
+        Option optBound = new Option("b", "bound", true, "To limit output");
+        optBound.setArgs(1);
         Option optHelp = new Option("h", "help", false, "Help information");
         Options optionList = new Options();
         optionList.addOption(optInput);
         optionList.addOption(optOutput);
+        optionList.addOption(optBound);
         optionList.addOption(optHelp);
         CommandLineParser cmdLinePosixParser = new DefaultParser();
         CommandLine commandLine = cmdLinePosixParser.parse(optionList, args);
@@ -43,6 +47,17 @@ public class CommandLineHandler {
             String[] arguments = commandLine.getOptionValues("o");
             output = arguments[0];
         }
+        if (commandLine.hasOption("b")) {
+            String[] arguments = commandLine.getOptionValues("b");
+            try{
+                bound = Integer.parseInt(arguments[0]);
+                if (bound <= 0){
+                    throw new ParseException("an argument of bound option should be positive.");
+                }
+            } catch (NumberFormatException x ){
+                throw new ParseException("an argument of bound option is not an integer.");
+            }
+        }
     }
 
     public String getInput() {
@@ -51,5 +66,9 @@ public class CommandLineHandler {
 
     public String getOutput() {
         return output;
+    }
+
+    public int getBound() {
+        return bound;
     }
 }
