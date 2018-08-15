@@ -10,9 +10,9 @@ public class SymbolCounter {
 
     public void process(String text) {
         text.toLowerCase().chars()
-                .mapToObj(ch -> (char) ch)
-                .filter(ch -> ch != ' ')
-                .forEach(ch -> symbols.compute(ch, (key, value) -> value == null ? 1 : value + 1));
+                .mapToObj(symbol -> (char) symbol)
+                .filter(symbol -> symbol != ' ')
+                .forEach(symbol -> symbols.compute(symbol, (key, value) -> value == null ? 1 : value + 1));
     }
 
     public List<String> collectStatistics(int bound) {
@@ -20,15 +20,15 @@ public class SymbolCounter {
         if (total == 0) {
             return Collections.singletonList("No data");
         }
-        bound = (bound != 0) ? bound : symbols.entrySet().size();
-        Function<Integer, String> bar = x -> {
-            int rate = (int) Math.ceil(x * 100.0 / total);
+        bound = (bound != 0) ? bound : symbols.size();
+        Function<Integer, String> bar = value -> {
+            int rate = (int) Math.ceil(value * 100.0 / total);
             return Stream.generate(() -> "#").limit(rate).collect(Collectors.joining());
         };
         return symbols.entrySet().stream()
                 .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
                 .limit(bound)
-                .map(x -> String.format(FORMATTER, x.getKey(), x.getValue() * 100.0 / total, bar.apply(x.getValue())))
+                .map(entry -> String.format(FORMATTER, entry.getKey(), entry.getValue() * 100.0 / total, bar.apply(entry.getValue())))
                 .collect(Collectors.toList());
     }
 }
