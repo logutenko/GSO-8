@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 
 public class Main {
@@ -12,13 +13,14 @@ public class Main {
     public static void main(String[] args) {
         CommandLineHandler handler = new CommandLineHandler();
         SymbolCounter counter = new SymbolCounter();
-        Path input, output;
         try {
             handler.parseArgs(args);
-            input = Paths.get(handler.getInput());
-            output = Paths.get(handler.getOutput());
+            Path input = Paths.get(handler.getInput());
+            Path output = Paths.get(handler.getOutput());
             int bound = handler.getBound();
-            Files.lines(input).forEach(counter::process);
+            try (Stream<String> s = Files.lines(input)) {
+                s.forEach(counter::process);
+            }
             Files.write(output, counter.collectStatistics(bound));
         } catch (ParseException | FileNotFoundException x) {
             System.err.println("Invalid arguments: " + x.getMessage());

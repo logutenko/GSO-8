@@ -5,8 +5,8 @@ import java.io.FileNotFoundException;
 
 public class CommandLineHandler {
 
-    public static String INPUT_DFLT = "input.txt";
-    public static String OUTPUT_DFLT = "output.txt";
+    public static final String INPUT_DFLT = "input.txt";
+    public static final String OUTPUT_DFLT = "output.txt";
     private String input;
     private String output;
     private int bound;
@@ -49,12 +49,12 @@ public class CommandLineHandler {
         }
         if (commandLine.hasOption("b")) {
             String[] arguments = commandLine.getOptionValues("b");
-            try{
+            try {
                 bound = Integer.parseInt(arguments[0]);
-                if (bound <= 0){
+                if (bound <= 0) {
                     throw new ParseException("an argument of bound option should be positive.");
                 }
-            } catch (NumberFormatException x ){
+            } catch (NumberFormatException x) {
                 throw new ParseException("an argument of bound option is not an integer.");
             }
         }
